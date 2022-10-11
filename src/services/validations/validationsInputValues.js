@@ -1,5 +1,6 @@
-const { addRequestTravelSchema, addPassengerSchema, idSchema } = require('./schemas');
-const { travelModel, driverModel } = require('../../models');
+const { addRequestTravelSchema,
+  addPassengerSchema, idSchema, addCarSchema, addDriverSchema } = require('./schemas');
+const { travelModel, driverModel, carModel } = require('../../models');
 
 const validateRequestTravelSchema = (passengerId, startingAddress, endingAddress, waypoints) => {
   const { error } = addRequestTravelSchema
@@ -46,10 +47,49 @@ const validateNewPassenger = (name, email, phone) => {
   return { type: null, message: '' };
 };
 
+const validateNewCar = (model, color, licensePlate) => {
+  const { error } = addCarSchema
+  .validate({ model, color, licensePlate });
+
+  if (error) return { type: 'INVALID_VALUE', message: error.message };
+
+  return { type: null, message: '' };
+};
+
+const validateNewDriver = async (name, carIds) => {
+  const { error } = addDriverSchema
+    .validate({ name, carIds });
+
+  if (error) return { type: 'INVALID_VALUE', message: error.message };
+  if (carIds) {
+    // chamamos `carModel.findById` em cada um dos ids para buscar os carros na DB
+
+    // quando um carro não existe, sua Promise retorna `undefined`
+
+    // `Promise.all` aguarda todas as Promises retornarem
+
+    // e retorna a array de resultados para `cars`
+
+    const cars = await Promise.all(
+
+      carIds.map(async (carId) => carModel.findById(carId)),
+
+    );
+
+    const someCarIsMissing = cars.some((car) => car === undefined);
+
+    if (someCarIsMissing) return { type: 'CAR_NOT_FOUND', message: 'Some car is not found' };
+  }
+
+  return { type: null, message: '' };
+};
+
 module.exports = {
   validateRequestTravelSchema,
   validateInputValues,
   validateAlreadyDriver,
   validateId,
   validateNewPassenger,
+  validateNewCar,
+  validateNewDriver,
 };

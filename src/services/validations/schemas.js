@@ -18,8 +18,24 @@ const addPassengerSchema = Joi.object({
   email: Joi.string().email().required(),
   phone: Joi.string().min(9).max(20).required() });
 
+const addCarSchema = Joi.object({
+  model: Joi.string().min(3).required(),
+  color: Joi.string().min(2).required(),
+  licensePlate: Joi.string().length(7).required(),
+});
+
+const addDriverSchema = Joi.object({
+  name: Joi.string().min(3).required(),
+  carIds: Joi.array().items(idSchema),
+});
+
+const nameSchema = Joi.string().min(3).required();
+
 module.exports = {
   idSchema,
   addRequestTravelSchema,
   addPassengerSchema,
+  addCarSchema,
+  addDriverSchema,
+  nameSchema,
 };

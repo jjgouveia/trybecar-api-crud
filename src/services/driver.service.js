@@ -1,7 +1,9 @@
-const { travelModel } = require('../models');
+const { travelModel, driverModel, driverCarModel } = require('../models');
 const {
   validateInputValues,
   validateAlreadyDriver,
+  validateNewDriver,
+  validateId,
 } = require('./validations/validationsInputValues');
 
 const WAITING_DRIVER = 1;
@@ -59,9 +61,54 @@ const endTravel = async ({ travelId, driverId }) => {
   return { type: null, message: result }; 
 };
 
+const getDrivers = async () => {
+  const drivers = await driverModel.findAll();
+  return { type: null, message: drivers };
+};
+
+const createDriver = async (name, carIds) => {
+     const error = await validateNewDriver(name, carIds);
+
+     if (error.type) return error;
+
+      const driverId = await driverModel.insert({ name });
+
+     const newDriver = await driverModel.findById(driverId);
+
+     if (carIds && carIds.length > 0) {
+       await Promise.all(carIds.map(
+
+         async (carId) => driverCarModel.insert({ driverId: newDriver.id, carId }),
+
+       ));
+
+       newDriver.cars = await Promise.all(
+
+         carIds.map(async (carId) => driverModel.findById(carId)),
+
+       );
+     } else {
+       newDriver.cars = [];
+     }
+
+     return { type: null, message: newDriver };
+};
+
+const getDriversByid = async (id) => {
+  const error = validateId(id);
+  if (error.type) return error;
+
+  const request = await driverModel.findById(id);
+  if (!request) return { type: 'DRIVER_NOT_FOUND', message: 'Driver not found' };
+  return { type: null, message: request };
+};
+
 module.exports = {
   travelAssign,
   startTravel,
   endTravel,
   getWaitingDriverTravels,
+  getDrivers,
+  createDriver,
+  getDriversByid,
 };

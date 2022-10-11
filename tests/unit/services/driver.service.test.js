@@ -3,11 +3,13 @@ const sinon = require('sinon');
 const travelModel = require('../../../src/models/travel.model');
 const driveDB = require('../../../src/models/driver.model');
 const driver = require('../../../src/services/driver.service');
+const { driverList } = require('./mocks/driver.service.mock');
 const {
   correctReturnTravel,
   correctReturnDriver,
   busyDriver,
 } = require('./mocks/driver.service.mock');
+const { driverModel } = require('../../../src/models');
 
 const DRIVER_ON_THE_WAY = 2;
 
@@ -80,5 +82,29 @@ describe('Verificando service Driver', function () {
 
   afterEach(function () {
     sinon.restore();
+  });
+
+  describe('Listando as pessoas motoristas', function () {
+    // TODO: ARRANGE - criar stubs para a camada Model
+    beforeEach(function () {
+      sinon.stub(driverModel, 'findAll').resolves(driverList);
+    });
+    
+    afterEach(function () {
+      sinon.restore();
+    });
+    it('a lista de motoristas é um array', async function () {
+      // TODO: ACT - chamar a função `getDrivers`
+      const drivers = await driver.getDrivers();
+      // TODO: ASSERT - verificar se resultado é um array
+      expect(drivers.message instanceof Array).to.equal(true);
+    });
+
+    it('retorna a lista de motoristas com sucesso', async function () {
+      // TODO: ACT - chamar a função `getDrivers`
+      const drivers = await driver.getDrivers();
+      // TODO: ASSERT - verificar se resultado é a lista de motoristas
+      expect(drivers.message).to.deep.equal(driverList);
+    });
   });
 });
