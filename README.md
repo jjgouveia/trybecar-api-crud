@@ -1,5 +1,7 @@
 # TrybeCar API
 
+AINDA EM CONSTRUÇÂO
+
 Uma API para gerenciamento de corridas, pessoas motoristas e passageiras.
 
 Essa API é usada como exemplo didático para o bloco de Arquitetura de Software do Curso de Desenvolvimento Web da Trybe.
